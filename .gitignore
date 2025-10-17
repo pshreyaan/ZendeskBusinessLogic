@@ -1,0 +1,16 @@
+# VS Code Ignores
+.vscode/
+.metals/
+
+# Jetbrains Ignores
+.idea/
+
+# Python
+venv/
+.venv/
+.pytest_cache
+__PYCACHE__
+
+# SERVERLESS
+node_modules/
+.serverless/

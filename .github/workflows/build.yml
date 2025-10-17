@@ -1,0 +1,49 @@
+## This file is used to build and test branches under development.
+name: Build and Test
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: dev # Set to dev for testing purposes
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Say Hello
+        run: echo "Hello from build.yml"
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Set Assumed Role
+        run: |
+          ASSUMED_ROLE=`cat config/dev.yml | grep assumedRoleArn | cut -d' ' -f2`
+          echo "ASSUMED_ROLE=${ASSUMED_ROLE}" >> $GITHUB_ENV
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ vars.DEPLOYER_ROLE }} # Must be set in Repository Environment Variables
+          role-session-name: gha_deployer
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+      - name: Install NPM dependencies
+        run: npm install
+      - name: Run Tests
+        run: |
+          pip install -r requirements.txt
+          python -m pytest src/
+      - name: Deploy To Dev Environment
+        run: |
+          export CONFIG_ENV=dev
+          export GIT_COMMITTER=${GITHUB_ACTOR}
+          BRANCH_NAME=$(echo ${GITHUB_HEAD_REF,,} | tr _ - | cut -d"-" -f1,2)
+          npm run deploy -- -s "$BRANCH_NAME"

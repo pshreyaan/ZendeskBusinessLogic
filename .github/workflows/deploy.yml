@@ -1,0 +1,50 @@
+name: Deploy
+run-name: Deploy serverless-template-repo version ${{ inputs.tag }} to [${{ inputs.environment }}]
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+        type: string
+        default: 'main'
+      environment:
+        required: true
+        description: Select deployment environment
+        type: environment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ vars.DEPLOYER_ROLE }}  # Must be set in Repository Environment Variables
+          role-session-name: gha_deployer
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+      - name: Install NPM dependencies
+        run: npm install
+      - name: Run PyTest
+        run: |
+          pip install -r requirements.txt
+          python -m pytest src/
+      - name: Deploy To ${{ github.event.inputs.environment }} Environment
+        run: |
+          export CONFIG_ENV=${{ github.event.inputs.environment}}
+          export GIT_COMMITTER=${GITHUB_ACTOR}
+          npm run deploy -- -s ${{ github.event.inputs.environment }}

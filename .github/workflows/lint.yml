@@ -1,0 +1,31 @@
+## This action is used to lint files before merging them into the main branch.
+## This action can be run manually through the Github Actions tab.
+## In the event files are not formatted properly, merging will be block.
+## Errors in formatting are displayed in the output. Running pre-commit
+## before pushing should format all files. Setup can be configured in setup.cfg
+name: Serverless-Template-Lint-and-Format
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+
+      - name: run pre commit
+        uses: pre-commit/action@v3.0.1

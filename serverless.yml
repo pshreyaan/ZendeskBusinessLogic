@@ -1,0 +1,62 @@
+service: sls-serverless-template
+provider:
+  name: aws
+  runtime: python3.11
+  stage: ${opt:stage}
+  region: eu-west-1
+  memorySize: 128
+  timeout: 30
+  lambdaHashingVersion: 20201221
+  logRetentionInDays: ${self:custom.config.logRetentionInDays}
+  stackTags:
+    service: sls-serverless-template
+    env: ${env:CONFIG_ENV}
+    version: v1.0.0
+    committer: ${env:GIT_COMMITTER}
+  iam:
+    deploymentRole: ${self:custom.config.deploymentRoleArn}
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ec2:DescribeSecurityGroups
+          Resource:
+            - "*"
+      # permissionsBoundary: ${self:custom.config.permissionBoundaryArn} # Unused in PoC Phase
+  environment:
+    LOG_LEVEL: ${self:custom.config.logLevel}
+    STAGE: ${self:provider.stage}
+    PREFIX: ${self:custom.config.resourcePrefix}
+
+custom:
+  environment: ${env:CONFIG_ENV}
+  config: ${file(config/${self:custom.environment}.yml)}
+  prune:
+    automatic: true
+    number: ${self:custom.config.lambdaVersionsToKeep}
+  remover:
+    buckets:
+
+package:
+  individually: true
+  patterns:
+    - '!node_modules/**'
+
+plugins:
+  - serverless-prune-plugin
+  - serverless-python-requirements
+
+functions:
+  greetingService:
+    name: sls-serverless-template-greetingService-${self:provider.stage}
+    handler: src/lambdas/greetingService.handle
+  mirrorService:
+    name: sls-serverless-template-mirrorService-${self:provider.stage}
+    handler: src/lambdas/mirrorService.handle
+    events:
+      - http:
+          path: /mirror/v1
+          method: post
+
+
+#resources:

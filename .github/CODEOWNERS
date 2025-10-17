@@ -1,0 +1,17 @@
+# If we're going to have actions workflows where on merge, changes can be applied to live
+# environments we need to make sure that an authoritative body is at least one approver
+# for the PR.  Branch rules allow for requiring review by a codeowner before merge. This
+# will let us define those authorities via configuration and enforce the review by them as a
+# function of the branch protection rules on master.
+
+# global catch all
+#*
+
+# Actions
+#.github/workflows/*
+
+# Stacks
+#./stacks/*
+
+# Serverless.yaml
+#./serverless.yml

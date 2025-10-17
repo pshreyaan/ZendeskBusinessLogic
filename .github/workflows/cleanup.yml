@@ -1,0 +1,54 @@
+# Cleanup of deployed temporary artifacts from dev environment
+name: Serverless-Template-Cleanup
+
+on:
+  pull_request:
+    types: [ closed ]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to cleanup'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Say Hello
+        run: echo "Hello from cleanup.yml"
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.x'
+      - name: Set Assumed Role
+        run: |
+          ASSUMED_ROLE=`cat config/dev.yml | grep assumedRoleArn | cut -d' ' -f2`
+          echo "ASSUMED_ROLE=${ASSUMED_ROLE}" >> $GITHUB_ENV
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ env.ASSUMED_ROLE }}
+          role-session-name: gha_deployer
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+      - name: Install NPM dependencies
+        run: npm install
+      # If workflow dispatch, cleanup input branch
+      - name: Remove Deployed Artifacts On Workflow Dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          export CONFIG_ENV=dev
+          export GIT_COMMITTER=${GITHUB_ACTOR}
+          BRANCH_NAME=$(echo ${{ github.event.inputs.branch }} | tr _ -)
+          npm run remove -- -s "$BRANCH_NAME"
+      - name: Remove Deployed Artifacts After PR Closed
+        if: github.event_name == 'pull_request'
+        run: |
+          export CONFIG_ENV=dev
+          export GIT_COMMITTER=${GITHUB_ACTOR}
+          BRANCH_NAME=$(echo ${GITHUB_HEAD_REF,,} | tr _ - | cut -d"-" -f1,2)
+          npm run remove -- -s "$BRANCH_NAME"
