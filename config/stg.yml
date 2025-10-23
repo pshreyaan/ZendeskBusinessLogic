@@ -1,7 +1,0 @@
-resourcePrefix: sls-template-repo
-lambdaVersionsToKeep: 5
-logLevel: DEBUG
-logRetentionInDays: 30
-assumedRoleArn: # arn:aws:iam::XXXXXXXXXX:role/sls-<service-name>-DeployerRole
-deploymentRoleArn: # arn:aws:iam::XXXXXXXXXX:role/sls-<service-name>-CloudFormationExecutionRole
-permissionBoundaryArn: # arn:aws:iam::XXXXXXXXXX:policy/cf-dev-dublin-dev-iam-policy-sls-<service-name>-v-1-0-0-ApplicationRuntimeBoundary-15J9WYBOVGU6Y

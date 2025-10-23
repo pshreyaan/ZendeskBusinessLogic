@@ -1,22 +1,14 @@
 {
-  "name": "sls-template-repo",
-  "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
-  "repository": {
-    "url": ""
-  },
+  "name": "zendesk-business-logic",
+  "version": "1.0.0",
+  "description": "Zendesk Business Hours Processing Lambda",
+  "main": "src/lambdas/businessHoursProcessor.js",
   "scripts": {
-    "package": "./node_modules/.bin/sls package -v",
-    "deploy": "./node_modules/.bin/sls deploy --config ./serverless.yml",
-    "remove": "./node_modules/.bin/sls remove --config ./serverless.yml"
+    "test": "node src/lambdas/tests/test-businessHoursProcessor.js"
   },
   "author": "Elemica Dev",
   "license": "ISC",
-  "devDependencies": {
-    "aws-sdk": "^2.702.0",
-    "serverless": "^3.39.0",
-    "serverless-prune-plugin": "^2.0.1",
-    "serverless-python-requirements": "^6.0.0"
+  "dependencies": {
+    "dotenv": "^16.0.0"
   }
 }

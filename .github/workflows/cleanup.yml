@@ -17,12 +17,11 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Say Hello
-        run: echo "Hello from cleanup.yml"
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: '22.x'
       - name: Set Assumed Role
         run: |
           ASSUMED_ROLE=`cat config/dev.yml | grep assumedRoleArn | cut -d' ' -f2`
@@ -37,7 +36,6 @@ jobs:
         run: npm install -g serverless
       - name: Install NPM dependencies
         run: npm install
-      # If workflow dispatch, cleanup input branch
       - name: Remove Deployed Artifacts On Workflow Dispatch
         if: github.event_name == 'workflow_dispatch'
         run: |

@@ -14,3 +14,7 @@ __PYCACHE__
 # SERVERLESS
 node_modules/
 .serverless/
+
+dev.yml
+prd.yml
+stg.yml
