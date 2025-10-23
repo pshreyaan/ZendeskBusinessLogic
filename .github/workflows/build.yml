@@ -24,7 +24,7 @@ jobs:
           ASSUMED_ROLE=`cat config/dev.yml | grep assumedRoleArn | cut -d' ' -f2`
           echo "ASSUMED_ROLE=${ASSUMED_ROLE}" >> $GITHUB_ENV
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v5.1.0
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ vars.DEPLOYER_ROLE }} # Must be set in Repository Environment Variables

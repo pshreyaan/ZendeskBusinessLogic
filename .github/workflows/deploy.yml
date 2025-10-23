@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '22.x'
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v5.1.0
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ vars.DEPLOYER_ROLE }}  # Must be set in Repository Environment Variables
